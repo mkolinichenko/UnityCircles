@@ -340,7 +340,7 @@ MonoBehaviour:
   maxScale: .699999988
   minTimeBetweenSpawns: .300000012
   maxTimeBetweenSpawns: 1.29999995
-  baseSpeed: .600000024
+  baseSpeed: .899999976
   diffIncreaseInterval: 10
   diffCoeff: 1.04999995
   score: {fileID: 1581270191}
@@ -358,6 +358,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sizes: 20000000400000008000000000010000
   approxPixGenPerFrame: 32
+  cleanUpDelay: 9
 --- !u!1 &736446851
 GameObject:
   m_ObjectHideFlags: 0
