@@ -95,28 +95,49 @@ public class CircleGradient : TextureAlgorithm {
 
 public class TextureManager : MonoBehaviour {
 	
-	List<Texture2D> activeSet = new List<Texture2D>();
-	List<Texture2D> backupSet = new List<Texture2D>();
+	List<Texture2D> activeSet;
+	List<Texture2D> backupSet;
 
 	public List<int> sizes;
+	public int approxPixGenPerFrame = 32;
+	int maxPixGenPerFrame = 1000000;
+
+	public float cleanUpDelay = 9.0f;
 	
 	void Start () {
-		if (sizes.Count == 0) sizes.Add (32);
-		sizes.Sort();
-		foreach (int s in sizes) {
-			activeSet.Add(new Texture2D(s, s));
-			backupSet.Add(new Texture2D(s, s));
-			StartCoroutine(TextureAlgorithm.GetRandom().FillTexture(backupSet[backupSet.Count - 1], 1000000));
+		if (sizes.Count == 0) {
+			Debug.LogWarning("Warning! No texture sizes specified,");
+			sizes.Add(32);
 		}
+		sizes.Sort();
+
+		backupSet = new List<Texture2D>();
+		foreach (int s in sizes) {
+			backupSet.Add(new Texture2D(s, s));
+			StartCoroutine(TextureAlgorithm.GetRandom().FillTexture(backupSet[backupSet.Count - 1], maxPixGenPerFrame));
+		}
+
 		SwitchTextureSet();
 	}
 
-	void SwitchTextureSet() {
-		List<Texture2D> tmp = activeSet;
+	public void SwitchTextureSet() {
+
+		if (activeSet != null) {
+			foreach (Texture2D tex in activeSet) {
+				Destroy (tex, cleanUpDelay);
+			}
+
+			activeSet.Clear ();
+			activeSet = null;
+		}
+
 		activeSet = backupSet;
-		backupSet = tmp;
-		foreach (Texture2D tex in backupSet) {
-			StartCoroutine(TextureAlgorithm.GetRandom().FillTexture(tex, 32));
+
+		backupSet = new List<Texture2D>();
+		foreach (Texture2D tex in activeSet) {
+			Texture2D newTex = new Texture2D(tex.width, tex.height);
+			StartCoroutine(TextureAlgorithm.GetRandom().FillTexture(newTex, approxPixGenPerFrame));
+			backupSet.Add(newTex);
 		}
 	}
 
@@ -129,7 +150,4 @@ public class TextureManager : MonoBehaviour {
 		return activeSet[activeSet.Count - 1];
 	}
 
-	void Update () {
-	
-	}
 }
